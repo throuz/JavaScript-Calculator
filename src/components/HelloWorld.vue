@@ -147,24 +147,24 @@ export default defineComponent({
           discribe.value = previousResult.value + name;
         } else {
           const lastLetter = discribe.value.charAt(discribe.value.length - 1);
-          /[+-]/.test(lastLetter)
-            ? (discribe.value = discribe.value.replace(/[*/+-]$/, name))
-            : (discribe.value += name);
+          if (/[^*/+-]/.test(lastLetter)) {
+            discribe.value += name;
+          } else if (/[*/]/.test(lastLetter) && /[*/]/.test(name)) {
+            discribe.value = discribe.value.replace(/[*/+-]$/, name);
+          } else if (/[*/]/.test(lastLetter) && /[+-]/.test(name)) {
+            discribe.value += name;
+          } else if (/[+-]/.test(lastLetter) && /[*/]/.test(name)) {
+            discribe.value = discribe.value.replace(/[*/+-]$/, name);
+          } else if (/[+-]/.test(lastLetter) && /[+-]/.test(name)) {
+            discribe.value = discribe.value.replace(/[*/+-]$/, name);
+          }
         }
       } else if (
         /=/.test(name) &&
         !/=/.test(discribe.value) &&
         discribe.value !== ""
       ) {
-        const demicalNum = discribe.value
-          .replace(/[*/+-]/, ".")
-          .split(".")
-          .sort((a, b) => {
-            return b.length - a.length;
-          })[0].length;
-        const fixedNum = demicalNum > 4 ? 4 : demicalNum;
-
-        const evalVal = parseFloat(eval(discribe.value).toFixed(fixedNum));
+        const evalVal = parseFloat(eval(discribe.value).toFixed(4));
         result.value = evalVal.toString();
         previousResult.value = evalVal.toString();
         discribe.value += `=${evalVal}`;
